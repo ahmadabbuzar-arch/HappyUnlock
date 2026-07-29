@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CONFIDENTIAL: Birthday File</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Patrick+Hand&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F2EA;
+  --purple:#B7B5FF;
+  --yellow:#FFD54F;
+  --black:#111111;
+  --white:#FFFFFF;
+  --pink:#FF8FA3;
+  --green:#8BD3A0;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(17,17,17,0.06) 1px, transparent 0);
+  background-size:22px 22px;
+  font-family:'Patrick Hand', cursive;
+  color:var(--black);
+  overflow-x:hidden;
+  min-height:100vh;
+  width:100%;
+}
+h1,h2,h3{font-family:'Baloo 2', cursive; margin:0;}
+.font-btn{font-family:'Fredoka', sans-serif;}
+
+#app{position:relative; width:100%; min-height:100vh;}
+
+.page{
+  display:none;
+  min-height:100vh;
+  width:100%;
+  padding:24px 16px 60px;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  position:relative;
+}
+.page.active{display:flex; animation:pageIn .55s cubic-bezier(.34,1.56,.64,1);}
+@keyframes pageIn{
+  from{opacity:0; transform:translateY(30px) scale(.97);}
+  to{opacity:1; transform:translateY(0) scale(1);}
+}
+
+.stamp{
+  position:absolute; top:14px; left:14px;
+  border:3px solid var(--black);
+  border-radius:8px;
+  padding:4px 10px;
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:.75rem;
+  background:var(--yellow);
+  transform:rotate(-6deg);
+  box-shadow:3px 3px 0 var(--black);
+  letter-spacing:.5px;
+}
+
+.card{
+  background:var(--white);
+  border:4px solid var(--black);
+  border-radius:26px;
+  box-shadow:9px 9px 0 var(--black);
+  padding:28px 22px;
+  max-width:440px;
+  width:100%;
+  position:relative;
+}
+
+.btn{
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  border:4px solid var(--black);
+  border-radius:16px;
+  padding:14px 30px;
+  background:var(--yellow);
+  box-shadow:6px 6px 0 var(--black);
+  font-size:1.05rem;
+  cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease;
+  color:var(--black);
+  touch-action:manipulation;
+}
+.btn:active{transform:translate(4px,4px); box-shadow:2px 2px 0 var(--black);}
+.btn:hover{animation:wobble .5s ease;}
+.btn.purple{background:var(--purple);}
+.btn.green{background:var(--green);}
+.btn.pink{background:var(--pink);}
+.btn.white{background:var(--white);}
+@keyframes wobble{
+  0%,100%{transform:rotate(0);}
+  25%{transform:rotate(-3deg) translate(-1px,-1px);}
+  75%{transform:rotate(3deg) translate(1px,-1px);}
+}
+
+.title-xl{
+  font-size:clamp(2rem, 8vw, 3.4rem);
+  line-height:1.05;
+  font-weight:800;
+}
+.title-lg{font-size:clamp(1.6rem,6vw,2.4rem); font-weight:700;}
+.sub{font-size:1.15rem; opacity:.85; margin-top:6px;}
+
+.doodle-svg{display:block; margin:0 auto;}
+
+/* ---------- LOADING ---------- */
+.loader-dots{display:flex; gap:10px; margin-top:22px;}
+.loader-dots span{
+  width:16px; height:16px; border-radius:50%;
+  background:var(--purple); border:3px solid var(--black);
+  animation:bounceDot 1s infinite ease-in-out;
+}
+.loader-dots span:nth-child(2){animation-delay:.15s; background:var(--yellow);}
+.loader-dots span:nth-child(3){animation-delay:.3s; background:var(--pink);}
+@keyframes bounceDot{
+  0%,80%,100%{transform:translateY(0);}
+  40%{transform:translateY(-14px);}
+}
+.progress-track{
+  width:220px; height:18px; border:3px solid var(--black); border-radius:20px;
+  background:var(--white); overflow:hidden; margin-top:18px;
+}
+.progress-fill{height:100%; width:0%; background:var(--purple); transition:width .2s linear;}
+
+/* ---------- LOCK / SLIDE TO UNLOCK ---------- */
+.lock-card{background:var(--purple);}
+.slide-track{
+  position:relative;
+  width:100%; max-width:300px;
+  height:64px;
+  background:var(--white);
+  border:4px solid var(--black);
+  border-radius:40px;
+  margin:20px auto 0;
+  display:flex; align-items:center;
+  overflow:hidden;
+  box-shadow:5px 5px 0 var(--black);
+}
+.slide-label{
+  position:absolute; width:100%; text-align:center;
+  font-family:'Fredoka',sans-serif; font-weight:600; color:var(--black);
+  opacity:.6; pointer-events:none; letter-spacing:.5px;
+}
+.slide-handle{
+  position:absolute; left:4px; top:4px;
+  width:52px; height:52px; border-radius:50%;
+  background:var(--yellow); border:4px solid var(--black);
+  display:flex; align-items:center; justify-content:center;
+  cursor:grab; touch-action:none;
+  box-shadow:3px 3px 0 var(--black);
+}
+.slide-handle:active{cursor:grabbing;}
+.unlocked-check{display:none; font-size:2.6rem;}
+
+/* ---------- DODGE BUTTON ---------- */
+.verify-btn-row{display:flex; gap:16px; margin-top:26px; position:relative; min-height:70px; align-items:center; justify-content:center;}
+#noBtn{position:relative; transition:transform .18s ease;}
+#noBtn.roaming{position:fixed; z-index:50;}
+
+/* ---------- SCAN ---------- */
+.scan-msg{
+  font-family:'Fredoka',sans-serif; font-weight:600; font-size:1.15rem;
+  margin-top:16px; min-height:1.6em;
+}
+
+/* ---------- 404 FLIP ---------- */
+.flip-outer{perspective:1200px; width:100%; max-width:420px;}
+.flip-inner{
+  position:relative; width:100%; min-height:340px;
+  transform-style:preserve-3d; transition:transform .8s cubic-bezier(.4,.2,.2,1);
+}
+.flip-inner.flipped{transform:rotateY(180deg);}
+.flip-face{
+  position:absolute; inset:0; backface-visibility:hidden;
+  background:var(--white); border:4px solid var(--black); border-radius:26px;
+  box-shadow:9px 9px 0 var(--black);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:24px;
+}
+.flip-back{transform:rotateY(180deg); background:var(--yellow);}
+
+/* ---------- QUIZ ---------- */
+.quiz-opt{
+  display:block; width:100%; text-align:left;
+  margin-top:12px; padding:14px 16px;
+  border:3px solid var(--black); border-radius:14px;
+  background:var(--white); font-family:'Fredoka',sans-serif; font-size:1rem;
+  cursor:pointer; box-shadow:4px 4px 0 var(--black); transition:transform .12s;
+}
+.quiz-opt:active{transform:translate(3px,3px); box-shadow:1px 1px 0 var(--black);}
+.quiz-opt.correct{background:var(--green);}
+.quiz-opt.wrong{background:var(--pink); animation:shakeX .4s;}
+@keyframes shakeX{
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-8px);}
+  75%{transform:translateX(8px);}
+}
+
+/* ---------- MEMORIES ---------- */
+.scrap-grid{
+  display:grid; grid-template-columns:1fr; gap:26px; width:100%; max-width:380px; margin-top:10px;
+}
+.scrap-card{
+  background:var(--white); border:4px solid var(--black); border-radius:18px;
+  padding:16px; box-shadow:7px 7px 0 var(--black); position:relative;
+}
+.scrap-card:nth-child(odd){transform:rotate(-3deg);}
+.scrap-card:nth-child(even){transform:rotate(2.5deg);}
+.tape{
+  position:absolute; top:-14px; left:50%; transform:translateX(-50%) rotate(-4deg);
+  width:70px; height:26px; background:rgba(255,213,79,.85);
+  border:2px solid rgba(17,17,17,.4);
+}
+.exhibit-tag{
+  font-family:'Fredoka',sans-serif; font-weight:600; font-size:.7rem;
+  display:inline-block; background:var(--black); color:var(--white);
+  padding:2px 8px; border-radius:6px; margin-bottom:8px;
+}
+
+/* ---------- ENVELOPE ---------- */
+.envelope-wrap{width:220px; height:150px; position:relative; cursor:pointer; margin:10px auto;}
+.env-back{
+  position:absolute; inset:0; background:var(--purple); border:4px solid var(--black); border-radius:12px;
+}
+.env-flap{
+  position:absolute; top:0; left:0; width:100%; height:80px;
+  background:var(--yellow); border:4px solid var(--black); border-bottom:none;
+  clip-path:polygon(0 0, 100% 0, 50% 90%);
+  transform-origin:top; transition:transform .6s cubic-bezier(.4,.2,.2,1);
+  border-radius:12px 12px 0 0;
+  z-index:3;
+}
+.envelope-wrap.open .env-flap{transform:rotateX(180deg);}
+.letter-paper{
+  position:absolute; left:10%; top:20%; width:80%; height:100px; background:var(--white);
+  border:3px solid var(--black); border-radius:6px; z-index:2;
+  transition:transform .6s ease .1s; box-shadow:2px 2px 0 rgba(17,17,17,.3);
+}
+.envelope-wrap.open .letter-paper{transform:translateY(-140px) scale(1.05);}
+.letter-full{
+  display:none; text-align:left; background:var(--white); border:4px solid var(--black);
+  border-radius:18px; padding:22px; margin-top:20px; box-shadow:7px 7px 0 var(--black);
+  font-size:1.2rem; line-height:1.6; max-width:400px;
+}
+.letter-full.show{display:block; animation:pageIn .5s ease;}
+
+/* ---------- GIFT ---------- */
+.gift-wrap{cursor:pointer; user-select:none;}
+.gift-wrap.shaking{animation:giftShake .5s ease infinite;}
+@keyframes giftShake{
+  0%,100%{transform:rotate(0deg);}
+  20%{transform:rotate(-4deg);}
+  40%{transform:rotate(3deg);}
+  60%{transform:rotate(-3deg);}
+  80%{transform:rotate(4deg);}
+}
+.gift-wrap.opened{animation:giftPop .5s cubic-bezier(.34,1.8,.64,1) forwards;}
+@keyframes giftPop{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.25) rotate(6deg);}
+  100%{transform:scale(1.05) rotate(0deg);}
+}
+
+/* ---------- GLITCH ---------- */
+.glitch{animation:glitchAnim .9s steps(2,end) 3;}
+@keyframes glitchAnim{
+  0%{transform:translate(0,0); filter:none;}
+  20%{transform:translate(-6px,3px); filter:hue-rotate(30deg);}
+  40%{transform:translate(6px,-3px); filter:hue-rotate(-20deg) contrast(1.4);}
+  60%{transform:translate(-4px,-4px); filter:invert(0.06);}
+  80%{transform:translate(4px,4px); filter:none;}
+  100%{transform:translate(0,0); filter:none;}
+}
+
+/* ---------- FINAL ---------- */
+.balloon{
+  position:fixed; bottom:-140px; z-index:2; pointer-events:none;
+  animation:floatUp linear infinite;
+}
+@keyframes floatUp{
+  0%{transform:translateY(0) translateX(0) rotate(0deg); opacity:1;}
+  100%{transform:translateY(-115vh) translateX(20px) rotate(8deg); opacity:0;}
+}
+.star-twinkle{position:fixed; pointer-events:none; z-index:1; animation:twinkle 2s infinite ease-in-out;}
+@keyframes twinkle{0%,100%{opacity:.2; transform:scale(.8);} 50%{opacity:1; transform:scale(1.2);}}
+
+.typewriter-text{
+  font-size:1.25rem; line-height:1.7; min-height:5em; text-align:left; max-width:380px;
+}
+.cursor-blink{animation:blink 1s step-start infinite;}
+@keyframes blink{50%{opacity:0;}}
+
+.music-toggle{
+  position:fixed; top:16px; right:16px; z-index:60;
+  width:54px; height:54px; border-radius:50%;
+  background:var(--yellow); border:4px solid var(--black);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:4px 4px 0 var(--black); cursor:pointer; font-size:1.4rem;
+}
+
+.easter-egg{
+  position:absolute; bottom:10px; right:14px; font-size:1.3rem; opacity:.5; cursor:pointer;
+}
+
+/* ---------- NAME EDIT ---------- */
+.name-edit-btn{
+  position:fixed; top:16px; left:16px; z-index:60;
+  font-family:'Fredoka',sans-serif; font-weight:600; font-size:.85rem;
+  background:var(--white); border:3px solid var(--black); border-radius:14px;
+  padding:8px 14px; box-shadow:4px 4px 0 var(--black); cursor:pointer;
+  display:flex; align-items:center; gap:6px;
+}
+.name-modal-overlay{
+  position:fixed; inset:0; background:rgba(17,17,17,.55); z-index:200;
+  display:none; align-items:center; justify-content:center; padding:20px;
+}
+.name-modal-overlay.show{display:flex;}
+.name-modal{
+  background:var(--white); border:4px solid var(--black); border-radius:22px;
+  box-shadow:8px 8px 0 var(--black); padding:24px; max-width:340px; width:100%; text-align:center;
+}
+.name-modal input{
+  font-family:'Patrick Hand', cursive; font-size:1.2rem;
+  width:100%; padding:10px 14px; margin-top:14px;
+  border:3px solid var(--black); border-radius:12px; text-align:center;
+}
+.name-modal-btns{display:flex; gap:12px; margin-top:18px; justify-content:center;}
+
+/* ---------- CREATOR PAGE ---------- */
+.creator-field{margin-top:16px; text-align:left;}
+.creator-field label{
+  font-family:'Fredoka',sans-serif; font-weight:600; font-size:.9rem; display:block; margin-bottom:6px;
+}
+.creator-field input, .creator-field textarea{
+  width:100%; font-family:'Patrick Hand', cursive; font-size:1.1rem;
+  padding:10px 14px; border:3px solid var(--black); border-radius:12px; resize:vertical;
+}
+.creator-actions{display:flex; flex-direction:column; gap:12px; margin-top:22px;}
+.link-output{
+  margin-top:16px; display:none; text-align:left;
+}
+.link-output.show{display:block;}
+.link-row{
+  display:flex; gap:8px; margin-top:8px;
+}
+.link-row input{
+  flex:1; font-family:'Fredoka',sans-serif; font-size:.85rem;
+  padding:10px 12px; border:3px solid var(--black); border-radius:10px; background:var(--bg);
+}
+.link-row button{padding:10px 16px; font-size:.9rem;}
+.top-link-btn{
+  position:fixed; top:16px; left:16px; z-index:60;
+  font-family:'Fredoka',sans-serif; font-weight:600; font-size:.85rem;
+  background:var(--white); border:3px solid var(--black); border-radius:14px;
+  padding:8px 14px; box-shadow:4px 4px 0 var(--black); cursor:pointer;
+  display:flex; align-items:center; gap:6px;
+}
+
+/* ---------- TOAST ---------- */
+#toastHost{
+  position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+  z-index:100; display:flex; flex-direction:column; gap:8px; align-items:center;
+  width:100%; padding:0 16px; pointer-events:none;
+}
+.toast{
+  font-family:'Fredoka',sans-serif; font-weight:600; font-size:.9rem;
+  background:var(--black); color:var(--white); border:3px solid var(--black);
+  border-radius:14px; padding:10px 18px; box-shadow:4px 4px 0 var(--purple);
+  animation:toastIn .3s ease, toastOut .3s ease 2.2s forwards;
+  max-width:320px;
+}
+@keyframes toastIn{from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:translateY(0);}}
+@keyframes toastOut{to{opacity:0; transform:translateY(-10px);}}
+
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div id="toastHost"></div>
+
+<div class="top-link-btn font-btn" id="topLinkBtn">🔗 Create / Share</div>
+
+<div id="app">
+
+<!-- PAGE 0: CREATOR -->
+<section class="page active" id="page-creator">
+  <div class="stamp">NEW CASE</div>
+  <div class="card">
+    <svg class="doodle-svg" width="90" height="90" viewBox="0 0 100 100">
+      <rect x="20" y="24" width="60" height="52" rx="8" fill="#B7B5FF" stroke="#111" stroke-width="5"/>
+      <line x1="30" y1="38" x2="70" y2="38" stroke="#111" stroke-width="4"/>
+      <line x1="30" y1="50" x2="70" y2="50" stroke="#111" stroke-width="4"/>
+      <line x1="30" y1="62" x2="55" y2="62" stroke="#111" stroke-width="4"/>
+      <circle cx="72" cy="70" r="14" fill="#FFD54F" stroke="#111" stroke-width="4"/>
+      <path d="M67 70 l4 4 l8 -8" stroke="#111" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h2 class="title-lg" style="margin-top:10px;">Create the Birthday File</h2>
+    <p class="sub">Fill this in, generate a link, aur bhej do 🎉</p>
+
+    <div class="creator-field">
+      <label for="cName">Kiska Birthday Hai? (required)</label>
+      <input type="text" id="cName" maxlength="24" placeholder="e.g. Ayesha">
+    </div>
+    <div class="creator-field">
+      <label for="cFrom">Tumhara Naam (optional)</label>
+      <input type="text" id="cFrom" maxlength="24" placeholder="e.g. Sarim">
+    </div>
+    <div class="creator-field">
+      <label for="cMsg">Personal Message (optional)</label>
+      <textarea id="cMsg" rows="3" maxlength="300" placeholder="Apna khud ka funny/sweet message likho... (blank chhodo to default message use hoga)"></textarea>
+    </div>
+
+    <div class="creator-actions">
+      <button class="btn purple font-btn" id="generateLinkBtn">🔗 Generate Link</button>
+      <button class="btn green font-btn" id="previewBtn">▶️ Preview Now</button>
+    </div>
+
+    <div class="link-output" id="linkOutput">
+      <label style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:.9rem;">Ye link copy karke bhej do:</label>
+      <div class="link-row">
+        <input type="text" id="linkField" readonly>
+        <button class="btn yellow font-btn" id="copyLinkBtn">Copy</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 1: LOADING -->
+<section class="page" id="page-loading">
+  <svg class="doodle-svg" width="110" height="110" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="42" fill="#FFD54F" stroke="#111" stroke-width="5"/>
+    <path d="M30 55 Q50 75 70 55" stroke="#111" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="36" cy="42" r="5" fill="#111"/>
+    <circle cx="64" cy="42" r="5" fill="#111"/>
+  </svg>
+  <h1 class="title-lg" style="margin-top:18px;">Preparing Confidential<br/>Birthday File...</h1>
+  <div class="loader-dots"><span></span><span></span><span></span></div>
+  <div class="progress-track"><div class="progress-fill" id="loadFill"></div></div>
+</section>
+
+<!-- PAGE 2: LOCK -->
+<section class="page" id="page-lock">
+  <div class="stamp">EXHIBIT #001</div>
+  <div class="card lock-card">
+    <svg class="doodle-svg" width="90" height="90" viewBox="0 0 100 100">
+      <rect x="28" y="45" width="44" height="38" rx="8" fill="#FFD54F" stroke="#111" stroke-width="5"/>
+      <path d="M36 45 V32 a14 14 0 0 1 28 0 V45" fill="none" stroke="#111" stroke-width="6"/>
+      <circle cx="50" cy="62" r="5" fill="#111"/>
+    </svg>
+    <h2 class="title-lg" style="margin-top:14px;">Classified File</h2>
+    <p class="sub">Slide to unlock the birthday case</p>
+    <div class="slide-track" id="slideTrack">
+      <span class="slide-label" id="slideLabel">Slide to unlock ➜</span>
+      <div class="slide-handle" id="slideHandle">🔒</div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 3: VERIFY -->
+<section class="page" id="page-verify">
+  <div class="stamp">EXHIBIT #002</div>
+  <div class="card">
+    <svg class="doodle-svg" width="110" height="110" viewBox="0 0 100 100">
+      <ellipse cx="50" cy="60" rx="34" ry="28" fill="#B7955E" stroke="#111" stroke-width="5"/>
+      <circle cx="30" cy="35" r="14" fill="#B7955E" stroke="#111" stroke-width="5"/>
+      <circle cx="70" cy="35" r="14" fill="#B7955E" stroke="#111" stroke-width="5"/>
+      <circle cx="30" cy="35" r="5" fill="#111"/>
+      <circle cx="70" cy="35" r="5" fill="#111"/>
+      <rect x="34" y="50" width="32" height="14" rx="7" fill="#111" opacity="0.85"/>
+      <circle cx="42" cy="57" r="3" fill="#fff"/>
+      <circle cx="58" cy="57" r="3" fill="#fff"/>
+    </svg>
+    <h2 class="title-lg" style="margin-top:10px;">Security Verification</h2>
+    <p class="sub">Before entering this confidential birthday file, we need to verify you.</p>
+    <p style="font-size:1.2rem; margin-top:14px; font-weight:600;">Are you really the birthday person?</p>
+    <div class="verify-btn-row">
+      <button class="btn green font-btn" id="yesBtn">YES ✅</button>
+      <button class="btn pink font-btn" id="noBtn">NO ❌</button>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 4: SCAN -->
+<section class="page" id="page-scan">
+  <div class="stamp">SCANNING</div>
+  <div class="card">
+    <svg class="doodle-svg" width="100" height="100" viewBox="0 0 100 100">
+      <rect x="24" y="30" width="52" height="42" rx="10" fill="#B7B5FF" stroke="#111" stroke-width="5"/>
+      <circle cx="40" cy="50" r="6" fill="#111"/>
+      <circle cx="60" cy="50" r="6" fill="#111"/>
+      <rect x="40" y="18" width="20" height="14" rx="5" fill="#FFD54F" stroke="#111" stroke-width="4"/>
+      <line x1="50" y1="18" x2="50" y2="8" stroke="#111" stroke-width="4"/>
+      <circle cx="50" cy="6" r="4" fill="#FF8FA3" stroke="#111" stroke-width="3"/>
+      <rect x="30" y="62" width="40" height="8" rx="4" fill="#111" opacity=".2"/>
+    </svg>
+    <h2 class="title-lg" style="margin-top:10px;">Checking Criminal Records...</h2>
+    <div class="progress-track" style="margin:18px auto 0;"><div class="progress-fill" id="scanFill"></div></div>
+    <p class="scan-msg" id="scanMsg">Booting scanner...</p>
+  </div>
+</section>
+
+<!-- PAGE 5: 404 -->
+<section class="page" id="page-404">
+  <div class="stamp">CASE FILE</div>
+  <div class="flip-outer">
+    <div class="flip-inner" id="flipCard">
+      <div class="flip-face flip-front">
+        <svg width="90" height="90" viewBox="0 0 100 100">
+          <ellipse cx="50" cy="55" rx="30" ry="34" fill="#D9A566" stroke="#111" stroke-width="5"/>
+          <path d="M32 46 Q36 40 40 46" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M60 46 Q64 40 68 46" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M40 68 Q50 60 60 68" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </svg>
+        <h1 class="title-xl">404</h1>
+        <h2 class="title-lg">Birthday Not Found 😢</h2>
+      </div>
+      <div class="flip-face flip-back">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <ellipse cx="50" cy="58" rx="34" ry="30" fill="#111"/>
+          <ellipse cx="50" cy="70" rx="26" ry="14" fill="#fff"/>
+          <path d="M36 50 Q40 44 44 50" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M56 50 Q60 44 64 50" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <ellipse cx="35" cy="60" rx="5" ry="4" fill="#FF8FA3"/>
+          <ellipse cx="65" cy="60" rx="5" ry="4" fill="#FF8FA3"/>
+        </svg>
+        <h2 class="title-xl">JUST KIDDING 😂</h2>
+        <p class="sub">Gotcha! The file was fine all along.</p>
+        <button class="btn purple font-btn" style="margin-top:16px;" id="toQuizBtn">Continue ➜</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 6: QUIZ -->
+<section class="page" id="page-quiz">
+  <div class="stamp">POP QUIZ</div>
+  <div class="card">
+    <svg class="doodle-svg" width="90" height="90" viewBox="0 0 100 100">
+      <ellipse cx="50" cy="55" rx="36" ry="30" fill="#FFD54F" stroke="#111" stroke-width="5"/>
+      <path d="M22 40 L10 22 M78 40 L90 22" stroke="#111" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="36" cy="48" r="4" fill="#111"/>
+      <circle cx="64" cy="48" r="4" fill="#111"/>
+      <path d="M40 66 Q50 74 60 66" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </svg>
+    <h2 class="title-lg" style="margin-top:8px;">The Ultimate Birthday Quiz</h2>
+    <div id="quizBody" style="margin-top:14px; text-align:left;"></div>
+  </div>
+</section>
+
+<!-- PAGE 7: MEMORIES -->
+<section class="page" id="page-memories">
+  <div class="stamp">MEMORY FOLDER</div>
+  <h2 class="title-lg">Classified Memories</h2>
+  <p class="sub">Exhibits recovered from the archives</p>
+  <div class="scrap-grid" id="scrapGrid"></div>
+  <button class="btn purple font-btn" style="margin-top:24px;" id="toLetterBtn">Continue ➜</button>
+</section>
+
+<!-- PAGE 8: LETTER -->
+<section class="page" id="page-letter">
+  <div class="stamp">TOP SECRET</div>
+  <h2 class="title-lg">A Secret Letter</h2>
+  <p class="sub">Tap the envelope to open it</p>
+  <div class="envelope-wrap" id="envelope">
+    <div class="env-back"></div>
+    <div class="letter-paper"></div>
+    <div class="env-flap"></div>
+  </div>
+  <div class="letter-full" id="letterFull">
+    <p id="letterGreeting">Dear Birthday Human,</p>
+    <p id="letterBody">Congratulations, you have officially survived another lap around the sun without any major criminal charges (that we could find). The Birthday Investigation Bureau has concluded its inquiry and can confirm: you are cute, chaotic, and dangerously good at eating cake.</p>
+    <p>May your year ahead be filled with snacks, naps, and zero notifications from group chats you didn't ask to be in.</p>
+    <p style="text-align:right; margin-top:14px;" id="letterSignature">— Case Closed, With Love 🎂</p>
+  </div>
+  <button class="btn green font-btn hidden" style="margin-top:20px;" id="toGiftBtn">Continue ➜</button>
+</section>
+
+<!-- PAGE 9: GIFT -->
+<section class="page" id="page-gift">
+  <div class="stamp">EXHIBIT #009</div>
+  <h2 class="title-lg">One Last Package</h2>
+  <p class="sub">Tap the box... if you dare</p>
+  <div class="gift-wrap shaking" id="giftBox" style="margin-top:14px;">
+    <svg width="150" height="150" viewBox="0 0 100 100">
+      <rect x="18" y="42" width="64" height="42" rx="6" fill="#B7B5FF" stroke="#111" stroke-width="5"/>
+      <rect x="18" y="42" width="64" height="14" fill="#FFD54F" stroke="#111" stroke-width="5"/>
+      <rect x="44" y="42" width="12" height="42" fill="#FFD54F" stroke="#111" stroke-width="4"/>
+      <path d="M50 42 C36 20 20 30 40 42 Z" fill="#FF8FA3" stroke="#111" stroke-width="4"/>
+      <path d="M50 42 C64 20 80 30 60 42 Z" fill="#FF8FA3" stroke="#111" stroke-width="4"/>
+    </svg>
+  </div>
+  <button class="btn purple font-btn hidden" style="margin-top:22px;" id="toFakeEndBtn">Continue ➜</button>
+</section>
+
+<!-- PAGE 10: FAKE ENDING -->
+<section class="page" id="page-fakeend">
+  <h2 class="title-xl">Thanks for Visiting.</h2>
+  <p class="sub">This concludes the birthday file.</p>
+  <button class="btn white font-btn" style="margin-top:22px;" id="exitBtn">Exit</button>
+</section>
+
+<!-- PAGE 11: FINAL -->
+<section class="page" id="page-final">
+  <div class="music-toggle font-btn" id="musicToggle">🔈</div>
+  <h1 class="title-xl" id="finalTitle">HAPPY BIRTHDAY 🎉</h1>
+  <svg class="doodle-svg" width="150" height="150" viewBox="0 0 100 100" style="margin-top:10px;">
+    <rect x="30" y="55" width="40" height="28" rx="5" fill="#B7955E" stroke="#111" stroke-width="4"/>
+    <rect x="30" y="45" width="40" height="12" fill="#FFD54F" stroke="#111" stroke-width="4"/>
+    <rect x="46" y="30" width="8" height="16" fill="#FF8FA3" stroke="#111" stroke-width="3"/>
+    <path id="flame" d="M50 24 Q54 18 50 12 Q46 18 50 24 Z" fill="#FFD54F" stroke="#111" stroke-width="2"/>
+    <circle cx="38" cy="70" r="4" fill="#B7B5FF" stroke="#111" stroke-width="2"/>
+    <circle cx="50" cy="72" r="4" fill="#FF8FA3" stroke="#111" stroke-width="2"/>
+    <circle cx="62" cy="70" r="4" fill="#8BD3A0" stroke="#111" stroke-width="2"/>
+  </svg>
+  <div class="typewriter-text card" id="typeText" style="margin-top:14px;"></div>
+  <div id="stickerRow" style="display:flex; gap:14px; margin-top:20px; flex-wrap:wrap; justify-content:center;"></div>
+  <button class="btn yellow font-btn" style="margin-top:24px; background:var(--yellow);" id="celebrateBtn">🎉 Celebrate Again</button>
+  <div class="easter-egg" id="egg">🥚</div>
+</section>
+
+</div>
+
+<canvas id="confettiCanvas" style="position:fixed; inset:0; pointer-events:none; z-index:80;"></canvas>
+
+<script>
+/* ---------------- CONFIG / DUMMY DATA ---------------- */
+const NAME_KEY = 'bday_name';
+const FROM_KEY = 'bday_from';
+const MSG_KEY = 'bday_msg';
+
+function b64EncodeUnicode(str){
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (m,p1)=>String.fromCharCode('0x'+p1)));
+}
+function b64DecodeUnicode(str){
+  return decodeURIComponent(atob(str).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+}
+
+const CONFIG = {
+  name: localStorage.getItem(NAME_KEY) || '',
+  from: localStorage.getItem(FROM_KEY) || '',
+  message: localStorage.getItem(MSG_KEY) || '',
+  finalMessageTemplate: "Another year older, {name}, another year of questionable decisions and excellent snack choices. Here's to more laughter, more cake, and more plot twists. Happy Birthday!"
+};
+
+function readConfigFromURL(){
+  const params = new URLSearchParams(window.location.search);
+  const data = params.get('data');
+  if(data){
+    try{
+      const decoded = JSON.parse(b64DecodeUnicode(decodeURIComponent(data)));
+      if(decoded.n) CONFIG.name = decoded.n;
+      if(decoded.f) CONFIG.from = decoded.f;
+      if(decoded.m) CONFIG.message = decoded.m;
+      return true;
+    }catch(e){ /* ignore bad data param */ }
+  }
+  const nameParam = params.get('name');
+  if(nameParam){ CONFIG.name = nameParam; return true; }
+  return false;
+}
+const cameFromSharedLink = readConfigFromURL();
+
+function applyConfig(){
+  const displayName = CONFIG.name || 'Birthday Star';
+  document.getElementById('finalTitle').textContent = `HAPPY BIRTHDAY, ${displayName}! 🎉`;
+  const greet = document.getElementById('letterGreeting');
+  if(greet) greet.textContent = `Dear ${displayName},`;
+  const sig = document.getElementById('letterSignature');
+  if(sig) sig.textContent = CONFIG.from ? `— ${CONFIG.from}, Case Closed 🎂` : '— Case Closed, With Love 🎂';
+}
+applyConfig();
+
+function getFinalMessage(){
+  if(CONFIG.message && CONFIG.message.trim()){
+    return CONFIG.message.trim();
+  }
+  return CONFIG.finalMessageTemplate.replace('{name}', CONFIG.name || 'Birthday Star');
+}
+
+/* ---------------- CREATOR PAGE ---------------- */
+(function setupCreator(){
+  const topBtn = document.getElementById('topLinkBtn');
+  const cName = document.getElementById('cName');
+  const cFrom = document.getElementById('cFrom');
+  const cMsg = document.getElementById('cMsg');
+  const generateBtn = document.getElementById('generateLinkBtn');
+  const previewBtn = document.getElementById('previewBtn');
+  const linkOutput = document.getElementById('linkOutput');
+  const linkField = document.getElementById('linkField');
+  const copyBtn = document.getElementById('copyLinkBtn');
+
+  function prefillCreator(){
+    cName.value = CONFIG.name || '';
+    cFrom.value = CONFIG.from || '';
+    cMsg.value = CONFIG.message || '';
+  }
+  prefillCreator();
+
+  function readCreatorInputs(){
+    const name = cName.value.trim();
+    const from = cFrom.value.trim();
+    const msg = cMsg.value.trim();
+    if(!name){
+      showToast("Pehle naam to daalo yaar 😅");
+      cName.focus();
+      return null;
+    }
+    CONFIG.name = name; CONFIG.from = from; CONFIG.message = msg;
+    localStorage.setItem(NAME_KEY, name);
+    localStorage.setItem(FROM_KEY, from);
+    localStorage.setItem(MSG_KEY, msg);
+    applyConfig();
+    return {name, from, msg};
+  }
+
+  generateBtn.addEventListener('click', ()=>{
+    const vals = readCreatorInputs();
+    if(!vals) return;
+    const payload = {n: vals.name};
+    if(vals.from) payload.f = vals.from;
+    if(vals.msg) payload.m = vals.msg;
+    const encoded = encodeURIComponent(b64EncodeUnicode(JSON.stringify(payload)));
+    const url = window.location.origin + window.location.pathname + '?data=' + encoded;
+    linkField.value = url;
+    linkOutput.classList.add('show');
+    showToast("Link ready! Ab Copy karke bhej do 🎉");
+  });
+
+  copyBtn.addEventListener('click', ()=>{
+    linkField.select();
+    linkField.setSelectionRange(0, 99999);
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(linkField.value).then(()=>{
+        showToast("Link copied! 📋");
+      }).catch(()=>{
+        document.execCommand('copy');
+        showToast("Link copied! 📋");
+      });
+    } else {
+      document.execCommand('copy');
+      showToast("Link copied! 📋");
+    }
+  });
+
+  previewBtn.addEventListener('click', ()=>{
+    const vals = readCreatorInputs();
+    if(!vals) return;
+    showPage('page-loading');
+    startLoadingSequence();
+  });
+
+  topBtn.addEventListener('click', ()=>{
+    prefillCreator();
+    linkOutput.classList.remove('show');
+    showPage('page-creator');
+  });
+})();
+
+const MEMORIES = [
+  {tag:"EXHIBIT #002", title:"The Great Cake Heist", note:"Witnesses report the whole cake vanished in under 4 minutes. No leads found.", emoji:"🍰"},
+  {tag:"EXHIBIT #003", title:"Suspicious Nap Activity", note:"Subject was found napping at 3pm for 'research purposes'.", emoji:"😴"},
+  {tag:"EXHIBIT #004", title:"Chocolate Stash Discovery", note:"An entire hidden chocolate reserve was located under the bed.", emoji:"🍫"},
+  {tag:"EXHIBIT #005", title:"Excessive Selfie Evidence", note:"Camera roll analysis shows 214 selfies in a single day.", emoji:"🤳"}
+];
+
+const QUIZ = [
+  {
+    q:"Which cake disappears fastest?",
+    options:["Chocolate Cake","Vegetable Cake","The Cake Nobody Touched (yet)"],
+    correct:0,
+    wrong:"Wrong! Everyone knows chocolate cake has zero chance of survival."
+  },
+  {
+    q:"Who eats more chocolate?",
+    options:["You, obviously","A random stranger","Nobody, chocolate is a myth"],
+    correct:0,
+    wrong:"Incorrect. The evidence (wrappers) says otherwise."
+  },
+  {
+    q:"Pizza or Cake?",
+    options:["Pizza","Cake","Correct answer: BOTH"],
+    correct:2,
+    wrong:"Close, but the Birthday Bureau demands BOTH."
+  }
+];
+
+/* ---------------- PAGE NAV ---------------- */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ---------------- TOAST ---------------- */
+function showToast(msg){
+  const host = document.getElementById('toastHost');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  host.appendChild(t);
+  setTimeout(()=>t.remove(), 2600);
+}
+
+/* ---------------- PAGE 1: LOADING ---------------- */
+function startLoadingSequence(){
+  const fill = document.getElementById('loadFill');
+  fill.style.width = '0%';
+  let pct = 0;
+  const iv = setInterval(()=>{
+    pct += Math.random()*18 + 8;
+    if(pct >= 100){ pct = 100; clearInterval(iv); }
+    fill.style.width = pct + '%';
+  }, 260);
+  setTimeout(()=>{ showPage('page-lock'); }, 2600);
+}
+
+/* If this page was opened via a shared link, skip the creator screen
+   and jump straight into the birthday experience. */
+if(cameFromSharedLink){
+  document.getElementById('topLinkBtn').style.display = 'none';
+  showPage('page-loading');
+  startLoadingSequence();
+}
+
+
+/* ---------------- PAGE 2: SLIDE TO UNLOCK ---------------- */
+(function setupSlider(){
+  const track = document.getElementById('slideTrack');
+  const handle = document.getElementById('slideHandle');
+  const label = document.getElementById('slideLabel');
+  let dragging = false;
+  let startX = 0;
+  let handleStartLeft = 0;
+  let unlocked = false;
+
+  function maxX(){ return track.clientWidth - handle.clientWidth - 8; }
+
+  function pointerDown(e){
+    if(unlocked) return;
+    dragging = true;
+    startX = (e.touches ? e.touches[0].clientX : e.clientX);
+    handleStartLeft = handle.offsetLeft;
+  }
+  function pointerMove(e){
+    if(!dragging || unlocked) return;
+    const x = (e.touches ? e.touches[0].clientX : e.clientX);
+    let delta = x - startX;
+    let newLeft = Math.min(Math.max(4, handleStartLeft + delta), maxX());
+    handle.style.left = newLeft + 'px';
+    label.style.opacity = Math.max(0, 0.6 - (newLeft/maxX())*0.6);
+    if(newLeft >= maxX() - 2){
+      dragging = false;
+      unlocked = true;
+      handle.textContent = '🔓';
+      handle.style.left = maxX() + 'px';
+      showToast("Achievement Unlocked: File Access Granted 🔓");
+      setTimeout(()=>showPage('page-verify'), 700);
+    }
+  }
+  function pointerUp(){
+    if(unlocked) return;
+    dragging = false;
+    handle.style.transition = 'left .3s ease';
+    handle.style.left = '4px';
+    label.style.opacity = 0.6;
+    setTimeout(()=>{ handle.style.transition=''; }, 300);
+  }
+
+  handle.addEventListener('mousedown', pointerDown);
+  handle.addEventListener('touchstart', pointerDown, {passive:true});
+  window.addEventListener('mousemove', pointerMove);
+  window.addEventListener('touchmove', pointerMove, {passive:true});
+  window.addEventListener('mouseup', pointerUp);
+  window.addEventListener('touchend', pointerUp);
+})();
+
+/* ---------------- PAGE 3: VERIFY (dodging NO button) ---------------- */
+(function setupVerify(){
+  const noBtn = document.getElementById('noBtn');
+  const yesBtn = document.getElementById('yesBtn');
+  let dodgeCount = 0;
+  const dodgeMsgs = [
+    "Nice try 😂",
+    "Nope, not today.",
+    "Access denied to the NO button.",
+    "This button believes in you (YES).",
+    "Almost caught it! Almost."
+  ];
+
+  function dodge(){
+    dodgeCount++;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const btnW = noBtn.offsetWidth, btnH = noBtn.offsetHeight;
+    const newX = Math.random() * (vw - btnW - 20) + 10;
+    const newY = Math.random() * (vh - btnH - 20) + 10;
+    noBtn.classList.add('roaming');
+    noBtn.style.left = newX + 'px';
+    noBtn.style.top = newY + 'px';
+    showToast(dodgeMsgs[Math.min(dodgeCount-1, dodgeMsgs.length-1)]);
+    if(dodgeCount >= 5){
+      noBtn.style.opacity = '0.35';
+      noBtn.style.pointerEvents = 'none';
+      showToast("Fine. NO has been disqualified. Continuing...");
+      setTimeout(()=>{ showPage('page-scan'); startScan(); }, 900);
+    }
+  }
+  noBtn.addEventListener('mouseenter', dodge);
+  noBtn.addEventListener('touchstart', function(e){ e.preventDefault(); dodge(); }, {passive:false});
+  noBtn.addEventListener('click', dodge);
+
+  yesBtn.addEventListener('click', ()=>{
+    showToast("Identity confirmed. Welcome back.");
+    showPage('page-scan');
+    startScan();
+  });
+})();
+
+/* ---------------- PAGE 4: FAKE SCAN ---------------- */
+let scanStarted = false;
+function startScan(){
+  if(scanStarted) return;
+  scanStarted = true;
+  const fill = document.getElementById('scanFill');
+  const msg = document.getElementById('scanMsg');
+  const msgs = [
+    "Scanning fingerprints...",
+    "No crimes detected 🚓",
+    "Too many selfies found 🤳",
+    "Chocolate addiction detected 🍫",
+    "Still checking...",
+    "Cross-referencing nap history...",
+    "Verifying birthday clearance...",
+    "Almost done..."
+  ];
+  let i = 0;
+  msg.textContent = msgs[0];
+  const msgIv = setInterval(()=>{
+    i++;
+    if(i < msgs.length){ msg.textContent = msgs[i]; }
+  }, 700);
+
+  let pct = 0;
+  const fillIv = setInterval(()=>{
+    pct += Math.random()*14 + 6;
+    if(pct >= 100){
+      pct = 100;
+      clearInterval(fillIv);
+      clearInterval(msgIv);
+      msg.textContent = "Scan complete ✅";
+      setTimeout(()=>{
+        showPage('page-404');
+        setTimeout(()=>{
+          document.getElementById('flipCard').classList.add('flipped');
+        }, 1600);
+      }, 700);
+    }
+    fill.style.width = pct + '%';
+  }, 450);
+}
+
+document.getElementById('toQuizBtn').addEventListener('click', ()=>{
+  showPage('page-quiz');
+  renderQuiz();
+});
+
+/* ---------------- PAGE 6: QUIZ ---------------- */
+let quizIndex = 0;
+let quizScore = 0;
+function renderQuiz(){
+  quizIndex = 0; quizScore = 0;
+  renderQuestion();
+}
+function renderQuestion(){
+  const body = document.getElementById('quizBody');
+  if(quizIndex >= QUIZ.length){
+    body.innerHTML = `
+      <div style="text-align:center;">
+        <p style="font-size:1.3rem; font-weight:600;">Quiz Complete! 🎉</p>
+        <p class="sub">Score: ${quizScore}/${QUIZ.length}</p>
+        <button class="btn green font-btn" id="toMemBtn" style="margin-top:14px;">Continue ➜</button>
+      </div>`;
+    document.getElementById('toMemBtn').addEventListener('click', ()=>{
+      showPage('page-memories'); renderMemories();
+    });
+    showToast("Achievement Unlocked: Quiz Survivor 🏆");
+    return;
+  }
+  const item = QUIZ[quizIndex];
+  body.innerHTML = `
+    <p style="font-weight:600; font-size:1.15rem;">Q${quizIndex+1}. ${item.q}</p>
+    <div id="optWrap"></div>
+  `;
+  const wrap = document.getElementById('optWrap');
+  item.options.forEach((opt, idx)=>{
+    const b = document.createElement('button');
+    b.className = 'quiz-opt font-btn';
+    b.textContent = opt;
+    b.addEventListener('click', ()=>{
+      const opts = wrap.querySelectorAll('.quiz-opt');
+      opts.forEach(o=>o.style.pointerEvents='none');
+      if(idx === item.correct){
+        b.classList.add('correct');
+        quizScore++;
+        showToast("Correct! 🎉");
+        setTimeout(()=>{ quizIndex++; renderQuestion(); }, 700);
+      } else {
+        b.classList.add('wrong');
+        showToast(item.wrong);
+        opts[item.correct].classList.add('correct');
+        setTimeout(()=>{ quizIndex++; renderQuestion(); }, 1100);
+      }
+    });
+    wrap.appendChild(b);
+  });
+}
+
+/* ---------------- PAGE 7: MEMORIES ---------------- */
+function renderMemories(){
+  const grid = document.getElementById('scrapGrid');
+  grid.innerHTML = '';
+  MEMORIES.forEach(m=>{
+    const card = document.createElement('div');
+    card.className = 'scrap-card';
+    card.innerHTML = `
+      <div class="tape"></div>
+      <div class="exhibit-tag">${m.tag}</div>
+      <div style="font-size:2.4rem;">${m.emoji}</div>
+      <h3 style="font-family:'Baloo 2'; font-size:1.05rem; margin-top:6px;">${m.title}</h3>
+      <p style="font-size:1rem; margin-top:4px;">${m.note}</p>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+document.getElementById('toLetterBtn').addEventListener('click', ()=>{
+  showPage('page-letter');
+});
+
+/* ---------------- PAGE 8: LETTER ---------------- */
+document.getElementById('envelope').addEventListener('click', function(){
+  this.classList.add('open');
+  setTimeout(()=>{
+    document.getElementById('letterFull').classList.add('show');
+    document.getElementById('toGiftBtn').classList.remove('hidden');
+  }, 500);
+});
+
+document.getElementById('toGiftBtn').addEventListener('click', ()=>{
+  showPage('page-gift');
+});
+
+/* ---------------- PAGE 9: GIFT ---------------- */
+document.getElementById('giftBox').addEventListener('click', function(){
+  if(this.classList.contains('opened')) return;
+  this.classList.remove('shaking');
+  this.classList.add('opened');
+  burstConfetti();
+  showToast("Achievement Unlocked: Birthday FBI Approved 🕵️");
+  setTimeout(()=>{
+    document.getElementById('toFakeEndBtn').classList.remove('hidden');
+  }, 500);
+});
+
+document.getElementById('toFakeEndBtn').addEventListener('click', ()=>{
+  showPage('page-fakeend');
+});
+
+/* ---------------- PAGE 10: FAKE ENDING / GLITCH ---------------- */
+document.getElementById('exitBtn').addEventListener('click', ()=>{
+  document.getElementById('app').classList.add('glitch');
+  showToast("ERROR 404: Exit Not Found");
+  setTimeout(()=>{
+    document.getElementById('app').classList.remove('glitch');
+    showPage('page-final');
+    startFinal();
+  }, 1100);
+});
+
+/* ---------------- PAGE 11: FINAL ---------------- */
+let finalStarted = false;
+function startFinal(){
+  if(finalStarted) return;
+  finalStarted = true;
+  spawnBalloons();
+  spawnStars();
+  const finalMsg = getFinalMessage();
+  typewrite(finalMsg, document.getElementById('typeText'));
+  burstConfetti();
+  const stickers = ['🎈','🎂','🎁','⭐','🍕','🍫','📸','🎉'];
+  const row = document.getElementById('stickerRow');
+  stickers.forEach(s=>{
+    const d = document.createElement('div');
+    d.style.fontSize = '2rem';
+    d.style.background = '#fff';
+    d.style.border = '3px solid #111';
+    d.style.borderRadius = '14px';
+    d.style.padding = '10px 12px';
+    d.style.boxShadow = '4px 4px 0 #111';
+    d.textContent = s;
+    row.appendChild(d);
+  });
+}
+
+function typewrite(text, el){
+  el.textContent = '';
+  let i = 0;
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor-blink';
+  cursor.textContent = '|';
+  function step(){
+    if(i <= text.length){
+      el.textContent = text.slice(0, i);
+      el.appendChild(cursor);
+      i++;
+      setTimeout(step, 28);
+    }
+  }
+  step();
+}
+
+function spawnBalloons(){
+  const colors = ['#B7B5FF','#FFD54F','#FF8FA3','#8BD3A0'];
+  for(let i=0;i<10;i++){
+    const b = document.createElement('div');
+    b.className = 'balloon';
+    b.style.left = Math.random()*90 + '%';
+    b.style.animationDuration = (7 + Math.random()*6) + 's';
+    b.style.animationDelay = (Math.random()*6) + 's';
+    const color = colors[i % colors.length];
+    b.innerHTML = `<svg width="40" height="56" viewBox="0 0 40 56">
+      <ellipse cx="20" cy="20" rx="18" ry="20" fill="${color}" stroke="#111" stroke-width="3"/>
+      <line x1="20" y1="40" x2="20" y2="56" stroke="#111" stroke-width="2"/>
+    </svg>`;
+    document.body.appendChild(b);
+  }
+}
+
+function spawnStars(){
+  for(let i=0;i<14;i++){
+    const s = document.createElement('div');
+    s.className = 'star-twinkle';
+    s.style.left = Math.random()*100 + '%';
+    s.style.top = Math.random()*100 + '%';
+    s.style.animationDelay = (Math.random()*2) + 's';
+    s.style.fontSize = (10 + Math.random()*14) + 'px';
+    s.textContent = '✦';
+    document.body.appendChild(s);
+  }
+}
+
+document.getElementById('celebrateBtn').addEventListener('click', ()=>{
+  burstConfetti();
+  showToast("You unlocked extra confetti! 🎊");
+});
+
+document.getElementById('egg').addEventListener('click', ()=>{
+  showToast("You found a secret easter egg! 🥚 The chicken says happy birthday too.");
+});
+
+/* Music toggle: simple generated melody via WebAudio, no external file */
+let audioCtx = null;
+let musicPlaying = false;
+let musicTimer = null;
+function playNote(freq, time, dur){
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.0001, time);
+  gain.gain.exponentialRampToValueAtTime(0.15, time + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(time);
+  osc.stop(time + dur + 0.05);
+}
+const MELODY = [523,523,587,523,698,659, 523,523,587,523,784,698];
+function playMelodyLoop(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let t = audioCtx.currentTime + 0.1;
+  MELODY.forEach((f)=>{ playNote(f, t, 0.35); t += 0.4; });
+  musicTimer = setTimeout(playMelodyLoop, MELODY.length * 400);
+}
+document.getElementById('musicToggle').addEventListener('click', function(){
+  musicPlaying = !musicPlaying;
+  this.textContent = musicPlaying ? '🔊' : '🔈';
+  if(musicPlaying){ playMelodyLoop(); } else { clearTimeout(musicTimer); }
+});
+
+/* ---------------- CONFETTI CANVAS ---------------- */
+const canvas = document.getElementById('confettiCanvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+let confettiPieces = [];
+const CONFETTI_COLORS = ['#B7B5FF','#FFD54F','#FF8FA3','#8BD3A0','#111111'];
+function burstConfetti(count = 120){
+  for(let i=0;i<count;i++){
+    confettiPieces.push({
+      x: canvas.width/2 + (Math.random()-0.5)*80,
+      y: canvas.height*0.35,
+      vx: (Math.random()-0.5)*10,
+      vy: Math.random()*-8 - 4,
+      size: 6 + Math.random()*6,
+      color: CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)],
+      rot: Math.random()*360,
+      vrot: (Math.random()-0.5)*10,
+      life: 0
+    });
+  }
+}
+function animateConfetti(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  confettiPieces.forEach(p=>{
+    p.vy += 0.25;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rot += p.vrot;
+    p.life++;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot * Math.PI/180);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+    ctx.restore();
+  });
+  confettiPieces = confettiPieces.filter(p=> p.y < canvas.height + 40 && p.life < 400);
+  requestAnimationFrame(animateConfetti);
+}
+animateConfetti();
+</script>
+</body>
+</html>
